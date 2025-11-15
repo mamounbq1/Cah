@@ -5,7 +5,6 @@ import os
 import logging
 from datetime import datetime, timedelta
 from course_dist.db_manager import DatabaseManager
-from course_dist.course_distribution import CourseDistributionManager
 from course_dist.constants import (
     MORNING_SLOTS, AFTERNOON_SLOTS, DAYS,
     get_school_year, format_week_text, get_week_dates
@@ -13,7 +12,7 @@ from course_dist.constants import (
 from course_dist.pdf_generator import generate_pdf
 from test import generate_pdf_grouped
 
-# Configuration du logging
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -26,11 +25,10 @@ class CahierTextFrame(ttk.Frame):
         self.controller = controller
         
         self.db = DatabaseManager()
-        self.course_distributor = CourseDistributionManager("data/cahier_texte.db")
-        
-        self.cells = {}           # Dictionnaire pour les cellules du tableau
+        # Automatic course distribution is now disabled; no CourseDistributionManager needed.
+        self.cells = {}           # Dictionary for the table cells
         self.unsaved_changes = False
-        self.vacation_cells = {}  # Pour stocker les cellules fusionnées (vacations, holidays, absences)
+        self.vacation_cells = {}  # For storing merged cells (vacations, holidays, absences)
         self.morning_slots = MORNING_SLOTS
         self.afternoon_slots = AFTERNOON_SLOTS
         self.columns = DAYS
@@ -39,7 +37,6 @@ class CahierTextFrame(ttk.Frame):
             self.db.setup_database()
             self.db.initialize_basic_data(self.columns, self.morning_slots, self.afternoon_slots)
             self.setup_ui()
-            self._create_cell_menu()
         except Exception as e:
             logging.error(f"Initialization error: {e}")
             raise
@@ -113,37 +110,31 @@ class CahierTextFrame(ttk.Frame):
         self._create_header_row()
         self._create_schedule_grid()
         
-        # Configure scroll region after content is added
+        # Update the scroll region after content is added
         self.main_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
         
+        # Set the current week in the week selector
         current_week = datetime.now().isocalendar()[1]
         for i, week in enumerate(weeks):
             if str(current_week) in week:
                 self.week_selector.current(i)
                 break
 
-
-
-
-
     def print_pdf_choice(self):
         """Opens a dialog that lets the user choose which PDF design to use via graphical previews with hover effects."""
-        # Create the Toplevel window with the main window as parent
         choice_window = tk.Toplevel(self.winfo_toplevel())
         choice_window.title("Choisissez le design d'impression PDF")
-        choice_window.geometry("600x400")  # Increased size for better presentation
-        choice_window.configure(bg="#f5f5f7")  # Light gray background
+        choice_window.geometry("600x400")
+        choice_window.configure(bg="#f5f5f7")
         choice_window.transient(self.winfo_toplevel())
         choice_window.grab_set()
 
-        # Create a style for modern-looking widgets
         style = ttk.Style()
         style.configure("Modern.TLabel",
                     font=("Helvetica", 14),
                     background="#f5f5f7",
                     foreground="#1d1d1f")
 
-        # Header label with modern styling
         header_label = ttk.Label(
             choice_window,
             text="Sélectionnez le design d'impression PDF",
@@ -151,15 +142,11 @@ class CahierTextFrame(ttk.Frame):
         )
         header_label.pack(pady=20)
 
-        # Create a frame to hold the design preview canvases
         previews_frame = tk.Frame(choice_window, bg="#f5f5f7")
         previews_frame.pack(pady=20)
 
-        # Function to create shadow effect
         def create_shadow(canvas, x1, y1, x2, y2, shadow_width=3):
-            # Create multiple rectangles with decreasing opacity for shadow effect
             for i in range(shadow_width):
-                opacity = 0.1 - (i * 0.02)
                 shadow_color = f"#{int(0 * 255):02x}{int(0 * 255):02x}{int(0 * 255):02x}"
                 canvas.create_rectangle(
                     x1 + i, y1 + i, x2 + i, y2 + i,
@@ -175,20 +162,13 @@ class CahierTextFrame(ttk.Frame):
                                 highlightthickness=0)
         standard_canvas.pack()
         
-        # Add shadow before drawing the main content
         create_shadow(standard_canvas, 12, 12, 208, 208)
         
-        # Main content rectangle with rounded corners
-        standard_canvas.create_rectangle(10, 10, 210, 210, fill="white", outline="#e1e1e1",
-                                    width=2)
-        # Header with gradient effect
+        standard_canvas.create_rectangle(10, 10, 210, 210, fill="white", outline="#e1e1e1", width=2)
         standard_canvas.create_rectangle(10, 10, 210, 40, fill="#007AFF", outline="")
-        standard_canvas.create_text(50, 25, text="Horaire", font=("Helvetica", 10, "bold"),
-                                fill="white")
-        standard_canvas.create_text(130, 25, text="Lundi", font=("Helvetica", 10, "bold"),
-                                fill="white")
+        standard_canvas.create_text(50, 25, text="Horaire", font=("Helvetica", 10, "bold"), fill="white")
+        standard_canvas.create_text(130, 25, text="Lundi", font=("Helvetica", 10, "bold"), fill="white")
         
-        # Data rows with alternating backgrounds
         standard_canvas.create_rectangle(10, 40, 210, 80, fill="#f8f8f8", outline="#e1e1e1")
         standard_canvas.create_text(50, 60, text="08:00", font=("Helvetica", 10))
         standard_canvas.create_text(130, 60, text="Math", font=("Helvetica", 10))
@@ -197,8 +177,8 @@ class CahierTextFrame(ttk.Frame):
         standard_canvas.create_text(50, 100, text="09:00", font=("Helvetica", 10))
         standard_canvas.create_text(130, 100, text="Phys", font=("Helvetica", 10))
         
-        standard_label = tk.Label(standard_frame, text="PDF Standard",
-                                font=("Helvetica", 12, "bold"), bg="#f5f5f7", fg="#1d1d1f")
+        standard_label = tk.Label(standard_frame, text="PDF Standard", font=("Helvetica", 12, "bold"),
+                                bg="#f5f5f7", fg="#1d1d1f")
         standard_label.pack(pady=10)
 
         # ---------- Grouped PDF Preview ----------
@@ -209,18 +189,12 @@ class CahierTextFrame(ttk.Frame):
                                 highlightthickness=0)
         grouped_canvas.pack()
         
-        # Add shadow
         create_shadow(grouped_canvas, 12, 12, 208, 208)
         
-        # Main content rectangle
-        grouped_canvas.create_rectangle(10, 10, 210, 210, fill="white", outline="#e1e1e1",
-                                    width=2)
-        # Header with gradient
+        grouped_canvas.create_rectangle(10, 10, 210, 210, fill="white", outline="#e1e1e1", width=2)
         grouped_canvas.create_rectangle(10, 10, 210, 40, fill="#FF2D55", outline="")
-        grouped_canvas.create_text(110, 25, text="TCSF1", font=("Helvetica", 12, "bold"),
-                                fill="white")
+        grouped_canvas.create_text(110, 25, text="TCSF1", font=("Helvetica", 12, "bold"), fill="white")
         
-        # Schedule entries with modern styling
         grouped_canvas.create_rectangle(10, 40, 210, 70, fill="#f8f8f8", outline="#e1e1e1")
         grouped_canvas.create_text(40, 55, text="Lundi", font=("Helvetica", 9))
         grouped_canvas.create_text(110, 55, text="08:00-09:30", font=("Helvetica", 9))
@@ -231,18 +205,14 @@ class CahierTextFrame(ttk.Frame):
         grouped_canvas.create_text(110, 85, text="09:00-10:30", font=("Helvetica", 9))
         grouped_canvas.create_text(170, 85, text="Phys", font=("Helvetica", 9, "bold"))
         
-        grouped_label = tk.Label(grouped_frame, text="PDF Groupé",
-                            font=("Helvetica", 12, "bold"), bg="#f5f5f7", fg="#1d1d1f")
+        grouped_label = tk.Label(grouped_frame, text="PDF Groupé", font=("Helvetica", 12, "bold"),
+                            bg="#f5f5f7", fg="#1d1d1f")
         grouped_label.pack(pady=10)
 
-        # ---------- Enhanced Hover Effects ----------
         def on_enter(event):
             widget = event.widget
-            # Create elevation effect
             widget.configure(bg="#fafafa")
-            # Scale up effect
             widget.scale("all", 110, 110, 1.02, 1.02)
-            # Brighten colors
             items = widget.find_all()
             for item in items:
                 if widget.type(item) == "rectangle":
@@ -254,11 +224,8 @@ class CahierTextFrame(ttk.Frame):
 
         def on_leave(event):
             widget = event.widget
-            # Remove elevation effect
             widget.configure(bg="white")
-            # Scale back to normal
             widget.scale("all", 110, 110, 1/1.02, 1/1.02)
-            # Restore original colors
             items = widget.find_all()
             for item in items:
                 if widget.type(item) == "rectangle":
@@ -273,7 +240,6 @@ class CahierTextFrame(ttk.Frame):
         grouped_canvas.bind("<Enter>", on_enter)
         grouped_canvas.bind("<Leave>", on_leave)
 
-        # ---------- Click Events ----------
         def select_standard(event):
             choice_window.destroy()
             self.print_to_pdf()
@@ -285,7 +251,6 @@ class CahierTextFrame(ttk.Frame):
         standard_canvas.bind("<Button-1>", select_standard)
         grouped_canvas.bind("<Button-1>", select_grouped)
 
-        # Add a subtle info text at the bottom
         info_label = tk.Label(
             choice_window,
             text="Cliquez sur un design pour sélectionner",
@@ -294,60 +259,6 @@ class CahierTextFrame(ttk.Frame):
             bg="#f5f5f7"
         )
         info_label.pack(pady=10)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     def _get_school_year_weeks(self):
         school_start, school_end = get_school_year()
@@ -391,8 +302,6 @@ class CahierTextFrame(ttk.Frame):
             )
             label.grid(row=1, column=col, sticky='nsew', padx=1, pady=1)
 
-
-
     def _create_schedule_grid(self):
         self._clear_existing_cells()
         schedule_entries = self.db.get_schedule_entries()
@@ -419,13 +328,11 @@ class CahierTextFrame(ttk.Frame):
         for day_id, time_slot_id, class_name in schedule_entries:
             class_schedule[(day_id, time_slot_id)] = class_name
 
-        # Create all rows and cells
         current_row = 2
         for horaire in self.morning_slots:
             self._create_row(current_row, horaire, class_schedule)
             current_row += 1
 
-        # Add separator
         separator = ttk.Frame(self.main_frame, style='Separator.TFrame')
         separator.grid(row=current_row, column=0, columnspan=len(self.columns) + 1, sticky='ew', pady=5)
         current_row += 1
@@ -434,7 +341,7 @@ class CahierTextFrame(ttk.Frame):
             self._create_row(current_row, horaire, class_schedule)
             current_row += 1
 
-        # Now handle vacation days by hiding affected cells
+        # Hide cells for vacation days and create merged cells
         for col in event_days.keys():
             for key in list(self.cells.keys()):
                 if key[1] == col:
@@ -447,11 +354,7 @@ class CahierTextFrame(ttk.Frame):
                     else:
                         cell.grid_remove()
 
-        # Create merged vacation cells last
         self._create_merged_vacation_cells(event_days)
-
-
-
 
     def _create_merged_vacation_cells(self, event_days):
         total_rows = len(self.morning_slots) + 2 + len(self.afternoon_slots)
@@ -491,7 +394,6 @@ class CahierTextFrame(ttk.Frame):
             event_label.pack(expand=True, fill='both')
             self.vacation_cells[(col, col)] = event_frame
 
-
     def _create_row(self, row, horaire, class_schedule):
         time_label = ttk.Label(
             self.main_frame,
@@ -517,7 +419,6 @@ class CahierTextFrame(ttk.Frame):
                     break
 
             if class_name:
-                # Existing code for cells with class names
                 class_label = ttk.Label(
                     cell_frame,
                     text=class_name,
@@ -548,13 +449,12 @@ class CahierTextFrame(ttk.Frame):
                 
                 self.cells[(row, col + 1)] = (text_widget, placeholder, class_label)
                 
+                # Bind left-click to open the modal window
                 for widget in (cell_frame, class_label, placeholder):
-                    widget.bind('<Button-1>', lambda e, r=row, c=col+1: self._on_cell_click(r, c))
-                    widget.bind('<Button-3>', lambda e, r=row, c=col+1: self._show_cell_menu(e, r, c))
+                    widget.bind('<Button-1>', lambda e, r=row, c=col+1: self._open_cell_edit_window(r, c))
                 text_widget.bind('<FocusOut>', lambda e, r=row, c=col+1: self._on_cell_focus_out(r, c))
                 text_widget.bind('<KeyRelease>', lambda e: self._on_cell_change())
             else:
-                # Empty cell case
                 empty_label = ttk.Label(
                     cell_frame,
                     text="",
@@ -562,54 +462,12 @@ class CahierTextFrame(ttk.Frame):
                 )
                 empty_label.grid(row=0, column=0, sticky='nsew', rowspan=2)
                 
-                # Make cell interactive
-                empty_label.bind('<Button-1>', lambda e, r=row, c=col+1: self._on_cell_click(r, c))
-                empty_label.bind('<Button-3>', lambda e, r=row, c=col+1: self._show_cell_menu(e, r, c))
+                empty_label.bind('<Button-1>', lambda e, r=row, c=col+1: self._open_cell_edit_window(r, c))
                 
                 self.cells[(row, col + 1)] = cell_frame
-    
-    
- 
-    def _distribute_ma_table_values(self, week_number):
-        try:
-            selected_week = self.week_selector.get()
-            week_start = datetime.strptime(selected_week.split("du ")[1].split(" au")[0], "%d/%m/%Y")
-            week_end = week_start + timedelta(days=5)
-            logging.info(f"Distributing courses for week {week_number}...")
-            distribution = self.course_distributor.distribute_courses(week_number, week_start, week_end)
-            logging.info(f"Distribution: {distribution}")
-            for group, slots in distribution.items():
-                for day_id, time_slot_id, course_id in slots:
-                    course_value = self.db._fetch_course_value_by_id(course_id)
-                    if not course_value:
-                        logging.warning(f"No course_value found for course_id: {course_id}")
-                        continue
-                    row = self._get_row_from_time_slot(time_slot_id)
-                    col = day_id
-                    logging.info(f"Assigning course value {course_value} to row {row}, col {col}")
-                    if (row, col) in self.cells and isinstance(self.cells[(row, col)], tuple):
-                        text_widget, placeholder, class_label = self.cells[(row, col)]
-                        if text_widget:
-                            text_widget.delete('1.0', tk.END)
-                            text_widget.insert('1.0', course_value)
-                            text_widget.grid()
-                            placeholder.grid_remove()
-                            class_label.config(cursor="hand2")
-                            class_label.bind('<Button-1>', lambda e, r=row, c=col: self._show_cell_menu(e, r, c))
-        except Exception as e:
-            logging.error(f"Error distributing ma_table values: {e}")
-            messagebox.showerror("Error", f"Failed to distribute values: {e}")
 
     def _on_cell_change(self):
         self.unsaved_changes = True
-
-    def _on_cell_click(self, row, col):
-        if (row, col) in self.cells and isinstance(self.cells[(row, col)], tuple):
-            text_widget, placeholder, _ = self.cells[(row, col)]
-            if text_widget:
-                placeholder.grid_remove()
-                text_widget.grid()
-                text_widget.focus_set()
 
     def _on_cell_focus_out(self, row, col):
         if (row, col) in self.cells and isinstance(self.cells[(row, col)], tuple):
@@ -650,8 +508,7 @@ class CahierTextFrame(ttk.Frame):
             saved_data = self.db.cursor.fetchall()
             if saved_data:
                 self._load_saved_data(saved_data)
-            else:
-                self._distribute_ma_table_values(week_number)
+            # Automatic course distribution is disabled; cells remain empty until manually edited.
         except Exception as e:
             logging.error(f"Error reloading schedule: {e}")
             messagebox.showerror("Error", f"Failed to reload schedule: {e}")
@@ -665,11 +522,6 @@ class CahierTextFrame(ttk.Frame):
                     text_widget.insert('1.0', value)
                     text_widget.grid()
                     placeholder.grid_remove()
-                    cell_frame = text_widget.master
-                    cell_frame.bind('<Button-3>', lambda e, r=row, c=col: self._show_cell_menu(e, r, c))
-                    placeholder.bind('<Button-1>', lambda e, r=row, c=col: self._show_cell_menu(e, r, c))
-                    text_widget.bind('<FocusOut>', lambda e, r=row, c=col: self._on_cell_focus_out(r, c))
-                    text_widget.bind('<KeyRelease>', lambda e: self._on_cell_change())
 
     def _get_row_from_time_slot(self, time_slot_id):
         if time_slot_id <= len(self.morning_slots):
@@ -677,203 +529,8 @@ class CahierTextFrame(ttk.Frame):
         else:
             return 2 + len(self.morning_slots) + 1 + (time_slot_id - len(self.morning_slots) - 1)
 
-    def _handle_control(self):
-        if hasattr(self, 'current_cell'):
-            row, col = self.current_cell
-            if (row, col) in self.cells and isinstance(self.cells[(row, col)], tuple):
-                control_window = tk.Toplevel(self.main_frame)
-                control_window.title("Control Options")
-                control_window.geometry("300x250")
-                frame = ttk.Frame(control_window, padding="10")
-                frame.pack(fill='both', expand=True)
-                ttk.Label(frame, text="Select Control Type:", font=("Arial", 11, "bold")).pack(pady=(0, 10))
-                controls = [
-                    "Contrôle écrit",
-                    "Contrôle oral",
-                    "Quiz",
-                    "Evaluation pratique",
-                    "Devoir maison",
-                    "Projet"
-                ]
-                selected_control = tk.StringVar()
-                selected_control.set(controls[0])
-                for control in controls:
-                    ttk.Radiobutton(frame, text=control, variable=selected_control, value=control).pack(anchor='w', pady=2)
-                ttk.Label(frame, text="Additional Notes:", font=("Arial", 10)).pack(pady=(10, 5), anchor='w')
-                notes_entry = tk.Text(frame, height=3, width=30)
-                notes_entry.pack(fill='x', pady=(0, 10))
-                def apply_control():
-                    control_type = selected_control.get()
-                    notes = notes_entry.get('1.0', tk.END).strip()
-                    text_widget, placeholder, _ = self.cells[self.current_cell]
-                    if text_widget:
-                        content = f"CONTROL: {control_type}"
-                        if notes:
-                            content += f"\nNotes: {notes}"
-                        text_widget.delete('1.0', tk.END)
-                        text_widget.insert('1.0', content)
-                        text_widget.grid()
-                        placeholder.grid_remove()
-                        self.unsaved_changes = True
-                    control_window.destroy()
-                button_frame = ttk.Frame(frame)
-                button_frame.pack(fill='x', pady=(10, 0))
-                ttk.Button(button_frame, text="Apply", command=apply_control).pack(side='left', padx=5)
-                ttk.Button(button_frame, text="Cancel", command=control_window.destroy).pack(side='left')
-
-    def _handle_custom_content(self):
-        if hasattr(self, 'current_cell'):
-            row, col = self.current_cell
-            if (row, col) in self.cells and isinstance(self.cells[(row, col)], tuple):
-                text_widget, placeholder, _ = self.cells[(row, col)]
-                if text_widget:
-                    text_widget.delete('1.0', tk.END)
-                    text_widget.grid()
-                    placeholder.grid_remove()
-                    text_widget.focus_set()
-
-    def save_schedule(self):
-        try:
-            week_text = self.week_selector.get()
-            week_number = int(week_text.split("Semaine ")[1].split(" -")[0])
-            year = int(week_text.split("/")[-1].strip())
-            course_progress = {}
-            for (row, col), cell in self.cells.items():
-                if isinstance(cell, tuple):
-                    text_widget, _, class_label = cell
-                    if text_widget and text_widget.winfo_ismapped():
-                        content = text_widget.get('1.0', tk.END).strip()
-                        if content:
-                            self.db.cursor.execute("""
-                                DELETE FROM schedule_data 
-                                WHERE week_number = ? AND cell_row = ? AND cell_col = ? AND year = ?
-                            """, (week_number, row, col, year))
-                            self.db.cursor.execute("""
-                                INSERT INTO schedule_data (week_number, cell_row, cell_col, value, year)
-                                VALUES (?, ?, ?, ?, ?)
-                            """, (week_number, row, col, content, year))
-                            self.db.cursor.execute("""
-                                SELECT id FROM ma_table WHERE valeur = ?
-                            """, (content,))
-                            result = self.db.cursor.fetchone()
-                            if result:
-                                cours_id = result[0]
-                                class_name = class_label.cget('text')
-                                if class_name:
-                                    self.db.cursor.execute("""
-                                        SELECT id FROM classes WHERE name = ?
-                                    """, (class_name,))
-                                    result = self.db.cursor.fetchone()
-                                    if result:
-                                        class_id = result[0]
-                                        course_progress[class_id] = max(cours_id, course_progress.get(class_id, 0))
-            for class_id, last_course in course_progress.items():
-                self.db.cursor.execute("""
-                    DELETE FROM class_course_progress
-                    WHERE class_id = ? AND last_week = ? AND year = ?
-                """, (class_id, week_number, year))
-                self.db.cursor.execute("""
-                    INSERT INTO class_course_progress (class_id, last_course_id, last_week, year)
-                    VALUES (?, ?, ?, ?)
-                """, (class_id, last_course, week_number, year))
-            self.db.conn.commit()
-            self.unsaved_changes = False
-            messagebox.showinfo("Success", "Schedule saved successfully!")
-        except Exception as e:
-            logging.error(f"Error saving schedule: {e}")
-            messagebox.showerror("Error", f"Failed to save schedule: {e}")
-            self.db.conn.rollback()
-
-    def _create_cell_menu(self):
-        self.cell_menu = tk.Menu(self.main_frame, tearoff=0)
-        self.cell_menu.add_command(label="Control", command=self._handle_control)
-        self.cell_menu.add_command(label="Custom Content", command=self._handle_custom_content)
-        self.cell_menu.add_separator()
-        self.cell_menu.add_command(label="Switch Content With...", command=self._handle_switch_content)
-
-    def _show_cell_menu(self, event, row, col):
-        if (row, col) in self.cells and isinstance(self.cells[(row, col)], tuple):
-            self.current_cell = (row, col)
-            text_widget, _, class_label = self.cells[(row, col)]
-            current_class = class_label.cget('text')
-            other_appearances = self._find_other_appearances(row, col, current_class)
-            self.cell_menu.entryconfig("Switch Content With...", state='normal' if other_appearances else 'disabled')
-            self.cell_menu.post(event.x_root, event.y_root)
-
-    def _find_other_appearances(self, current_row, current_col, class_name):
-        appearances = []
-        for (row, col), cell in self.cells.items():
-            if isinstance(cell, tuple) and (row, col) != (current_row, current_col):
-                _, _, class_label = cell
-                if class_label and class_label.cget('text') == class_name:
-                    appearances.append((row, col))
-        return appearances
-
-    def _handle_switch_content(self):
-        if hasattr(self, 'current_cell'):
-            current_row, current_col = self.current_cell
-            if (current_row, current_col) in self.cells:
-                current_cell = self.cells[(current_row, current_col)]
-                if isinstance(current_cell, tuple):
-                    text_widget, _, class_label = current_cell
-                    current_class = class_label.cget('text')
-                    other_appearances = self._find_other_appearances(current_row, current_col, current_class)
-                    if other_appearances:
-                        self._show_switch_dialog(other_appearances, current_class)
-
-    def _show_switch_dialog(self, other_appearances, class_name):
-        switch_window = tk.Toplevel(self.main_frame)
-        switch_window.title(f"Switch Content - {class_name}")
-        switch_window.geometry("400x300")
-        frame = ttk.Frame(switch_window, padding="10")
-        frame.pack(fill='both', expand=True)
-        ttk.Label(frame, text=f"Select appearance to switch content with:", font=("Arial", 11, "bold")).pack(pady=(0, 10))
-        listbox = tk.Listbox(frame, width=50, height=10)
-        listbox.pack(fill='both', expand=True)
-        for row, col in other_appearances:
-            text_widget, _, _ = self.cells[(row, col)]
-            content = text_widget.get('1.0', tk.END).strip() if text_widget.winfo_ismapped() else "Empty"
-            day = self.columns[col - 1]
-            time_slot = self._get_time_slot_text(row)
-            listbox.insert(tk.END, f"{day} - {time_slot}: {content}")
-        def switch_content():
-            selection = listbox.curselection()
-            if selection:
-                target_row, target_col = other_appearances[selection[0]]
-                current_text_widget, _, _ = self.cells[self.current_cell]
-                current_content = current_text_widget.get('1.0', tk.END).strip() if current_text_widget.winfo_ismapped() else ""
-                target_text_widget, target_placeholder, _ = self.cells[(target_row, target_col)]
-                target_content = target_text_widget.get('1.0', tk.END).strip() if target_text_widget.winfo_ismapped() else ""
-                self._update_cell_content(self.current_cell[0], self.current_cell[1], target_content)
-                self._update_cell_content(target_row, target_col, current_content)
-                self.unsaved_changes = True
-                switch_window.destroy()
-        button_frame = ttk.Frame(frame)
-        button_frame.pack(pady=10)
-        ttk.Button(button_frame, text="Switch", command=switch_content).pack(side='left', padx=5)
-        ttk.Button(button_frame, text="Cancel", command=switch_window.destroy).pack(side='left')
-
-    def _update_cell_content(self, row, col, content):
-        if (row, col) in self.cells and isinstance(self.cells[(row, col)], tuple):
-            text_widget, placeholder, _ = self.cells[(row, col)]
-            if text_widget:
-                text_widget.delete('1.0', tk.END)
-                if content:
-                    text_widget.insert('1.0', content)
-                    text_widget.pack(fill='both', expand=True)
-                    placeholder.pack_forget()
-                else:
-                    text_widget.pack_forget()
-                    placeholder.pack(fill='both', expand=True)
-
-    def _get_time_slot_text(self, row):
-        if row <= len(self.morning_slots) + 1:
-            return self.morning_slots[row - 2]
-        elif row == len(self.morning_slots) + 2:
-            return "Pause Déjeuner"
-        else:
-            afternoon_index = row - len(self.morning_slots) - 3
-            return self.afternoon_slots[afternoon_index]
+    def _get_time_slot_id(self, time_slot):
+        return self.db.get_time_slot_id(time_slot)
 
     def print_to_pdf(self):
         try:
@@ -950,42 +607,28 @@ class CahierTextFrame(ttk.Frame):
             logging.error(f"Error in print_to_pdf: {str(e)}", exc_info=True)
             messagebox.showerror("Error", f"Failed to generate PDF: {str(e)}")
 
-
-
-
-
     def print_to_pdf_grouped(self):
         try:
             logging.info("Starting grouped PDF generation...")
-
-            # Parse the selected week and obtain the week's start date.
             selected_week = self.week_selector.get()
             week_start = datetime.strptime(selected_week.split("du ")[1].split(" au")[0], "%d/%m/%Y")
-            # Get a mapping of day names (from self.columns) to dates.
             week_dates = get_week_dates(week_start, self.columns)
-
-            # Build a grid mapping for the schedule_state.
             grid_mapping = {}
             current_grid_row = 2
             for idx, slot in enumerate(self.morning_slots):
                 grid_mapping[current_grid_row] = idx
                 current_grid_row += 1
-            # Skip one row for the lunch separator.
             current_grid_row += 1
             for idx, slot in enumerate(self.afternoon_slots, start=len(self.morning_slots) + 1):
                 grid_mapping[current_grid_row] = idx
                 current_grid_row += 1
-
-            # Build the initial schedule_state grid.
             schedule_state = []
             for slot in self.morning_slots:
                 schedule_state.append([slot])
-            schedule_state.append(["12:30 - 14:30"])  # Lunch row
+            schedule_state.append(["12:30 - 14:30"])
             for slot in self.afternoon_slots:
                 schedule_state.append([slot])
             logging.info("Initial schedule state created with {} rows".format(len(schedule_state)))
-
-            # Append cell content for each day column.
             for col_idx, day in enumerate(self.columns, start=1):
                 logging.info("Processing day: {} at column {}".format(day, col_idx))
                 is_vacation_day = False
@@ -998,22 +641,16 @@ class CahierTextFrame(ttk.Frame):
                         break
                 for row_idx in range(len(schedule_state)):
                     if is_vacation_day:
-                        # For vacation days, we want to still include the session.
-                        # For the first row of the day (usually the first session),
-                        # try to preserve the original class name.
                         if row_idx == 0:
-                            # Try to get the normal cell content (if any) from the grid.
                             grid_row = next((gr for gr, idx in grid_mapping.items() if idx == row_idx), None)
                             normal_content = ""
                             if grid_row is not None:
                                 cell = self.cells.get((grid_row, col_idx))
                                 normal_content = self._get_cell_content(cell) if cell else ""
-                            # If normal content exists, extract the class name (first line).
                             if normal_content:
                                 orig_class = normal_content.split("\n", 1)[0].strip()
                             else:
                                 orig_class = "Unknown"
-                            # Store a dictionary that preserves the original class.
                             schedule_state[row_idx].append({
                                 'class': orig_class,
                                 'text': vacation_text or "Vacation",
@@ -1021,10 +658,8 @@ class CahierTextFrame(ttk.Frame):
                                 'merge': len(schedule_state)
                             })
                         else:
-                            # For other rows on a vacation day, leave the cell empty.
                             schedule_state[row_idx].append("")
                     else:
-                        # For non-vacation days.
                         if row_idx == len(self.morning_slots):
                             schedule_state[row_idx].append("Pause Déjeuner")
                         else:
@@ -1036,45 +671,29 @@ class CahierTextFrame(ttk.Frame):
                             else:
                                 schedule_state[row_idx].append("")
             logging.info("Final schedule state has {} rows".format(len(schedule_state)))
-
-            # ---- Build the data dictionary for the PDF ----
-            # Desired format:
-            # {
-            #    class_name: [ 
-            #         { "date": ..., "time": ..., "content": ..., "observation": ... },
-            #         ...
-            #    ],
-            #    ...
-            # }
             pdf_data = {}
             for row in schedule_state:
                 time_slot = row[0]
-                # Skip the lunch row.
                 if time_slot == "12:30 - 14:30":
                     continue
-                # Process each day's cell (columns start at index 1).
                 for col in range(1, len(row)):
                     cell_val = row[col]
                     if not cell_val:
                         continue
                     day_name = self.columns[col - 1]
                     date_str = week_dates.get(day_name, day_name)
-                    
-                    # If the cell is a dictionary indicating an event…
                     if isinstance(cell_val, dict) and cell_val.get('type') in ['vacation', 'holiday', 'absence']:
-                        # Use the preserved original class if available.
                         group_key = cell_val.get('class', cell_val.get('type').title())
                         entry = {
                             "date": date_str,
                             "time": time_slot,
-                            "content": "",  # content is empty because the session was overridden
+                            "content": "",
                             "observation": cell_val.get('text', cell_val.get('type'))
                         }
                         if group_key not in pdf_data:
                             pdf_data[group_key] = []
                         pdf_data[group_key].append(entry)
                     else:
-                        # Normal cell: assume the text is "ClassName\nAdditional details..."
                         parts = cell_val.split("\n", 1)
                         group_key = parts[0].strip()
                         content = parts[1].strip() if len(parts) > 1 else ""
@@ -1088,13 +707,9 @@ class CahierTextFrame(ttk.Frame):
                             pdf_data[group_key] = []
                         pdf_data[group_key].append(entry)
             logging.info("PDF data grouped by class/event: {}".format(pdf_data))
-
-            # Check if there is any data to print.
             if not pdf_data:
                 messagebox.showerror("Error", "No schedule entries found to generate grouped PDF.")
                 return
-
-            # Ask the user for the save location.
             filename = filedialog.asksaveasfilename(
                 defaultextension=".pdf",
                 filetypes=[("PDF Files", "*.pdf")],
@@ -1108,16 +723,6 @@ class CahierTextFrame(ttk.Frame):
         except Exception as e:
             logging.error("Error in print_to_pdf_grouped: " + str(e), exc_info=True)
             messagebox.showerror("Error", "Failed to generate grouped PDF: " + str(e))
-
-
-
-
-
-
-
-
-
-
 
     def _get_cell_content(self, cell):
         try:
@@ -1137,9 +742,278 @@ class CahierTextFrame(ttk.Frame):
         except Exception as e:
             logging.error(f"Error getting cell content: {str(e)}")
             return ""
+  
+    def _open_cell_edit_window(self, row, col):
+        """
+        Opens a modern, beautifully styled modal window for cell editing.
+        The window offers three options:
+        - Custom Content: Enter free text.
+        - Choose Course: Select a course from a list (from ma_table) and edit its details.
+        - Select Type: Pick from preset types (Controle, Soutien, Projet, Autre).
+        The OS title bar is removed and replaced with a custom draggable title bar.
+        """
+        # Create the modal window and remove OS decorations.
+        edit_window = tk.Toplevel(self)
+        edit_window.overrideredirect(True)  # Remove the native title bar (and its close button)
+        edit_window.title("Edit Cell")
+        edit_window.geometry("520x640")
+        edit_window.configure(bg="#ecf0f1")  # Light, modern background color
+        edit_window.transient(self.winfo_toplevel())
+        edit_window.grab_set()
+        edit_window.minsize(500, 600)
+        edit_window.update_idletasks()
 
-    def _get_time_slot_id(self, time_slot):
-        return self.db.get_time_slot_id(time_slot)
+        # Ensure the window is visible
+        edit_window.deiconify()
+        edit_window.lift()
+
+        # Retrieve initial content if available
+        initial_content = ""
+        if (row, col) in self.cells and isinstance(self.cells[(row, col)], tuple):
+            text_widget = self.cells[(row, col)][0]
+            initial_content = text_widget.get("1.0", tk.END).strip()
+
+        # Create unique style names based on the window id
+        window_id = str(edit_window.winfo_id())
+        local_style = {
+            'frame': f"Modern.TFrame.{window_id}",
+            'label': f"Modern.TLabel.{window_id}",
+            'header': f"Header.TLabel.{window_id}",
+            'radio': f"Modern.TRadiobutton.{window_id}",
+            'button': f"Modern.TButton.{window_id}"
+        }
+
+        style = ttk.Style()
+        # Configure custom styles and explicitly set layouts
+        style.configure(local_style['frame'], background="#ecf0f1")
+        style.layout(local_style['frame'], style.layout("TFrame"))
+        
+        style.configure(local_style['label'], background="#ecf0f1", foreground="#34495e", font=("Segoe UI", 11))
+        style.layout(local_style['label'], style.layout("TLabel"))
+        
+        style.configure(local_style['header'], background="#ecf0f1", foreground="#2c3e50", font=("Segoe UI", 16, "bold"))
+        style.layout(local_style['header'], style.layout("TLabel"))
+        
+        style.configure(local_style['radio'], background="#ecf0f1", foreground="#34495e", font=("Segoe UI", 11))
+        style.layout(local_style['radio'], style.layout("TRadiobutton"))
+        
+        style.configure(local_style['button'], font=("Segoe UI", 11), padding=10,
+                        foreground="#ffffff", background="#3498db")
+        style.layout(local_style['button'], style.layout("TButton"))
+
+        # Create new styles for the Cancel and Apply buttons
+        style.configure("Cancel.TButton", background="#ff9999", foreground="white",
+                        font=("Segoe UI", 11), padding=10)
+        style.map("Cancel.TButton", background=[("active", "#ff7777")])
+        style.configure("Apply.TButton", background="#99ff99", foreground="white",
+                        font=("Segoe UI", 11), padding=10)
+        style.map("Apply.TButton", background=[("active", "#77ff77")])
+
+        # Cleanup function to reset styles and close the window
+        def cleanup_styles():
+            for key in local_style.values():
+                try:
+                    style.configure(key, {})
+                except tk.TclError:
+                    pass
+            edit_window.destroy()
+        edit_window.protocol("WM_DELETE_WINDOW", cleanup_styles)
+
+        # --- Custom Title Bar ---
+        # Create a custom title bar to replace the OS one.
+        title_bar = tk.Frame(edit_window, bg="#34495e", relief="raised", bd=0)
+        title_bar.pack(fill="x")
+        title_label = tk.Label(title_bar, text="Edit Cell Content", bg="#34495e",
+                            fg="white", font=("Segoe UI", 14, "bold"))
+        title_label.pack(expand=True)
+        # Enable dragging of the window using the custom title bar.
+        def start_move(event):
+            edit_window.x = event.x
+            edit_window.y = event.y
+        def do_move(event):
+            x = edit_window.winfo_x() - edit_window.x + event.x
+            y = edit_window.winfo_y() - edit_window.y + event.y
+            edit_window.geometry(f"+{x}+{y}")
+        title_bar.bind("<Button-1>", start_move)
+        title_bar.bind("<B1-Motion>", do_move)
+
+        # Main container below the custom title bar with padding
+        main_container = ttk.Frame(edit_window, style=local_style['frame'])
+        main_container.pack(fill="both", expand=True, padx=30, pady=30)
+
+        # Separator (no header here since we have the title bar)
+        ttk.Separator(main_container, orient="horizontal").pack(fill="x", pady=(0, 20))
+
+        # Variable to track the selected option; default is "custom"
+        selected_option = tk.StringVar(value="custom")
+
+        # Options (Radio Buttons)
+        options_frame = ttk.Frame(main_container, style=local_style['frame'])
+        options_frame.pack(fill="x", pady=(0, 20))
+        radio_custom = ttk.Radiobutton(
+            options_frame, text="Custom Content", variable=selected_option,
+            value="custom", style=local_style['radio'], command=lambda: show_frame("custom")
+        )
+        radio_custom.pack(side="left", padx=10)
+        radio_course = ttk.Radiobutton(
+            options_frame, text="Choose Course", variable=selected_option,
+            value="course", style=local_style['radio'], command=lambda: show_frame("course")
+        )
+        radio_course.pack(side="left", padx=10)
+        radio_type = ttk.Radiobutton(
+            options_frame, text="Select Type", variable=selected_option,
+            value="type", style=local_style['radio'], command=lambda: show_frame("type")
+        )
+        radio_type.pack(side="left", padx=10)
+
+        # Create separate frames for each editing option
+        frames = {}
+
+        # --- Custom Content Frame ---
+        custom_frame = ttk.Frame(main_container, style=local_style['frame'])
+        frames["custom"] = custom_frame
+        custom_label = ttk.Label(custom_frame, text="Enter your custom content below:", style=local_style['label'])
+        custom_label.pack(anchor="w", pady=(0, 10))
+        custom_text = tk.Text(custom_frame, height=10, width=50, font=("Segoe UI", 11),
+                            wrap="word", relief="solid", borderwidth=1)
+        if initial_content:
+            custom_text.insert("1.0", initial_content)
+        custom_text.pack(fill="both", expand=True)
+
+        # --- Course Selection Frame ---
+        course_frame = ttk.Frame(main_container, style=local_style['frame'])
+        frames["course"] = course_frame
+        course_label = ttk.Label(course_frame, text="Select a course:", style=local_style['label'])
+        course_label.pack(anchor="w", pady=(0, 10))
+        # Query courses from the "ma_table" (assumed structure: id, valeur)
+        try:
+            courses = [row[0] for row in self.db.cursor.execute("SELECT valeur FROM ma_table").fetchall()]
+        except Exception as e:
+            logging.error(f"Error querying courses from ma_table: {e}")
+            courses = []
+        course_var = tk.StringVar()
+        course_combobox = ttk.Combobox(
+            course_frame, textvariable=course_var, values=courses, state="readonly",
+            font=("Segoe UI", 11), width=45
+        )
+        course_combobox.pack(fill="x", pady=(0, 10))
+        course_details_label = ttk.Label(course_frame, text="Course details:", style=local_style['label'])
+        course_details_label.pack(anchor="w", pady=(10, 10))
+        course_text = tk.Text(course_frame, height=8, width=50, font=("Segoe UI", 11),
+                            wrap="word", relief="solid", borderwidth=1)
+        course_text.pack(fill="both", expand=True)
+        def on_course_select(event):
+            selected_course = course_combobox.get()
+            course_text.delete("1.0", tk.END)
+            course_text.insert(tk.END, selected_course)
+        course_combobox.bind("<<ComboboxSelected>>", on_course_select)
+
+        # --- Type Selection Frame ---
+        type_frame = ttk.Frame(main_container, style=local_style['frame'])
+        frames["type"] = type_frame
+        type_label = ttk.Label(type_frame, text="Select the type:", style=local_style['label'])
+        type_label.pack(anchor="w", pady=(0, 10))
+        type_options = ["Controle", "Soutien", "Projet", "Autre"]
+        type_var = tk.StringVar(value=type_options[0])
+        type_combobox = ttk.Combobox(
+            type_frame, textvariable=type_var, values=type_options, state="readonly",
+            font=("Segoe UI", 11), width=45
+        )
+        type_combobox.pack(fill="x")
+
+        # Function to switch between option frames
+        def show_frame(frame_key):
+            for key, frame in frames.items():
+                frame.pack_forget()
+            frames[frame_key].pack(fill="both", expand=True, pady=(20, 0))
+        # Show the default option frame
+        show_frame("custom")
+
+        # Button Frame
+        button_frame = ttk.Frame(main_container, style=local_style['frame'])
+        button_frame.pack(fill="x", pady=(30, 0))
+        def apply_changes():
+            option = selected_option.get()
+            if option == "custom":
+                content = custom_text.get("1.0", tk.END).strip()
+            elif option == "course":
+                content = course_text.get("1.0", tk.END).strip()
+            elif option == "type":
+                content = type_combobox.get().strip()
+            else:
+                content = ""
+            if (row, col) in self.cells and isinstance(self.cells[(row, col)], tuple):
+                text_widget, placeholder, _ = self.cells[(row, col)]
+                text_widget.delete("1.0", tk.END)
+                text_widget.insert("1.0", content)
+                text_widget.grid()
+                placeholder.grid_remove()
+                self.unsaved_changes = True
+            edit_window.destroy()
+        apply_button = ttk.Button(button_frame, text="Apply Changes", style="Apply.TButton", command=apply_changes)
+        apply_button.pack(side="right", padx=(5, 0))
+        cancel_button = ttk.Button(button_frame, text="Cancel", style="Cancel.TButton", command=edit_window.destroy)
+        cancel_button.pack(side="right", padx=5)
+
+        # Center the window on the screen
+        edit_window.update_idletasks()
+        width = edit_window.winfo_width()
+        height = edit_window.winfo_height()
+        x = (edit_window.winfo_screenwidth() // 2) - (width // 2)
+        y = (edit_window.winfo_screenheight() // 2) - (height // 2)
+        edit_window.geometry(f'{width}x{height}+{x}+{y}')
+
+    def save_schedule(self):
+        try:
+            week_text = self.week_selector.get()
+            week_number = int(week_text.split("Semaine ")[1].split(" -")[0])
+            year = int(week_text.split("/")[-1].strip())
+            course_progress = {}
+            for (row, col), cell in self.cells.items():
+                if isinstance(cell, tuple):
+                    text_widget, _, class_label = cell
+                    if text_widget and text_widget.winfo_ismapped():
+                        content = text_widget.get('1.0', tk.END).strip()
+                        if content:
+                            self.db.cursor.execute("""
+                                DELETE FROM schedule_data 
+                                WHERE week_number = ? AND cell_row = ? AND cell_col = ? AND year = ?
+                            """, (week_number, row, col, year))
+                            self.db.cursor.execute("""
+                                INSERT INTO schedule_data (week_number, cell_row, cell_col, value, year)
+                                VALUES (?, ?, ?, ?, ?)
+                            """, (week_number, row, col, content, year))
+                            self.db.cursor.execute("""
+                                SELECT id FROM ma_table WHERE valeur = ?
+                            """, (content,))
+                            result = self.db.cursor.fetchone()
+                            if result:
+                                cours_id = result[0]
+                                class_name = class_label.cget('text')
+                                if class_name:
+                                    self.db.cursor.execute("""
+                                        SELECT id FROM classes WHERE name = ?
+                                    """, (class_name,))
+                                    result = self.db.cursor.fetchone()
+                                    if result:
+                                        class_id = result[0]
+                                        course_progress[class_id] = max(cours_id, course_progress.get(class_id, 0))
+            for class_id, last_course in course_progress.items():
+                self.db.cursor.execute("""
+                    DELETE FROM class_course_progress
+                    WHERE class_id = ? AND last_week = ? AND year = ?
+                """, (class_id, week_number, year))
+                self.db.cursor.execute("""
+                    INSERT INTO class_course_progress (class_id, last_course_id, last_week, year)
+                    VALUES (?, ?, ?, ?)
+                """, (class_id, last_course, week_number, year))
+            self.db.conn.commit()
+            self.unsaved_changes = False
+            messagebox.showinfo("Success", "Schedule saved successfully!")
+        except Exception as e:
+            logging.error(f"Error saving schedule: {e}")
+            messagebox.showerror("Error", f"Failed to save schedule: {e}")
+            self.db.conn.rollback()
 
     def _on_closing(self):
         try:
