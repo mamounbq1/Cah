@@ -34,7 +34,7 @@ class ThemeManager:
         # Setup elite theme alongside standard theme
         try:
             from core.elite_theme import EliteTheme
-            EliteTheme.setup_styles(style)
+            EliteTheme.setup_elite_theme()
         except ImportError:
             pass  # Elite theme not available
         
