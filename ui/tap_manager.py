@@ -1,11 +1,11 @@
 from tkinter import ttk
 import tkinter as tk
 from core.theme_manager import ThemeManager
-from frames.vacances import create_vacances_tab
-from frames.holiday import create_holidays_tab
-from frames.absences import create_absences_tab
-from frames.modules import create_modules_tab
-from frames.classes import create_classes_tab
+from services.vacances import create_vacances_tab
+from services.holiday import create_holidays_tab
+from services.absences import create_absences_tab
+from services.modules import create_modules_tab
+from services.classes import create_classes_tab
 
 class TabManagerFrame(ttk.Frame):
     def __init__(self, parent, controller):
