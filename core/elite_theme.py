@@ -65,9 +65,7 @@ class EliteTheme:
         'bg_secondary': '#F8FAFC',      # Off-white
         'bg_tertiary': '#F1F5F9',       # Light gray
         'bg_dark': '#0F172A',           # Dark mode
-        'bg_gradient_1': 'linear-gradient(135deg, #667EEA 0%, #764BA2 100%)',
-        'bg_gradient_2': 'linear-gradient(135deg, #F093FB 0%, #F5576C 100%)',
-        'bg_gradient_3': 'linear-gradient(135deg, #4FACFE 0%, #00F2FE 100%)',
+        # Note: Tkinter doesn't support CSS gradients - removed gradient definitions
         
         # Borders
         'border_light': '#E2E8F0',      # Light border
@@ -212,7 +210,6 @@ class EliteTheme:
             background=cls.COLORS['glass_overlay'],
             foreground=cls.COLORS['text_primary'],
             borderwidth=1,
-            bordercolor=cls.COLORS['glass_border'],
             focuscolor='none',
             padding=(cls.SPACING['lg'], cls.SPACING['md']),
             relief='flat'
@@ -249,20 +246,13 @@ class EliteTheme:
             fieldbackground=cls.COLORS['surface_0'],
             background=cls.COLORS['surface_0'],
             foreground=cls.COLORS['text_primary'],
-            bordercolor=cls.COLORS['border_light'],
-            lightcolor=cls.COLORS['border_focus'],
-            darkcolor=cls.COLORS['border_focus'],
             borderwidth=2,
             relief='flat',
             padding=(cls.SPACING['md'], cls.SPACING['sm']),
             font=cls.FONTS['body']
         )
         style.map('Elite.TEntry',
-            fieldbackground=[('focus', cls.COLORS['surface_0'])],
-            bordercolor=[
-                ('focus', cls.COLORS['border_focus']),
-                ('hover', cls.COLORS['border_medium'])
-            ]
+            fieldbackground=[('focus', cls.COLORS['surface_0'])]
         )
         
         # ===== ELITE FRAME STYLES =====
