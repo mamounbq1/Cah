@@ -31,6 +31,13 @@ class ThemeManager:
         style = ttk.Style()
         style.theme_use('clam')
         
+        # Setup elite theme alongside standard theme
+        try:
+            from core.elite_theme import EliteTheme
+            EliteTheme.setup_styles(style)
+        except ImportError:
+            pass  # Elite theme not available
+        
         # Style général
         style.configure('.',
             background=cls.COLORS['background'],

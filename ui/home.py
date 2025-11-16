@@ -121,6 +121,7 @@ class HomeFrame(ttk.Frame):
         button_frame.pack(pady=20)
 
         buttons = [
+            ("🏆 ELITE DASHBOARD", self.open_elite_dashboard),
             ("➕ Ajouter une entrée", self.open_add_entry),
             ("🖨️ Imprimer l'état", self.print_state),
             ("📥 Importer contenu", self.import_content),
@@ -158,3 +159,7 @@ class HomeFrame(ttk.Frame):
 
     def distribute_courses(self):
         self.controller.show_frame("CahierTextFrame")
+    
+    def open_elite_dashboard(self):
+        """Open the elite enterprise dashboard"""
+        self.controller.show_frame("EliteEnterpriseDashboard")
