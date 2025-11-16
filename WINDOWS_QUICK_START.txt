@@ -1,0 +1,121 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                  WINDOWS QUICK START GUIDE                    ║
+║          School Schedule Management System                    ║
+╚═══════════════════════════════════════════════════════════════╝
+
+ERROR: "Le chemin d'accès spécifié est introuvable"
+This means: "The specified path cannot be found"
+
+═══════════════════════════════════════════════════════════════
+
+QUICK FIX (3 steps):
+══════════════════════════════════════════════════════════════
+
+1. Open Command Prompt (cmd.exe) in your project folder:
+   
+   Right-click on the folder → "Open in Terminal" or "Open Command Window here"
+   
+   Or manually navigate:
+   cd "C:\Users\DELL\Desktop\MAE 2026\Cah-main"
+
+
+2. Run the diagnostic tool:
+   
+   diagnose.bat
+   
+   This will check everything and create missing directories.
+
+
+3. Start the application:
+   
+   start.bat
+   
+   Or run directly:
+   python main.py
+
+═══════════════════════════════════════════════════════════════
+
+ALTERNATIVE: Use File Explorer
+══════════════════════════════════════════════════════════════
+
+1. Download latest code from:
+   https://github.com/mamounbq1/Cah
+
+2. Extract to: C:\Users\DELL\Desktop\MAE 2026\Cah-main
+
+3. Inside the folder, double-click: diagnose.bat
+   (This checks and fixes everything)
+
+4. Then double-click: start.bat
+   (This starts the application)
+
+═══════════════════════════════════════════════════════════════
+
+IF PYTHON NOT INSTALLED:
+══════════════════════════════════════════════════════════════
+
+1. Go to: https://www.python.org/downloads/
+
+2. Download Python 3.8 or higher
+
+3. IMPORTANT during installation:
+   ✓ Check "Add Python to PATH"
+   ✓ Check "Install tcl/tk and IDLE"
+
+4. After installation, restart computer
+
+5. Then run: diagnose.bat
+
+═══════════════════════════════════════════════════════════════
+
+IF DEPENDENCIES MISSING:
+══════════════════════════════════════════════════════════════
+
+Open Command Prompt in project folder and run:
+
+pip install -r requirements.txt
+
+Wait for installation to complete, then run: start.bat
+
+═══════════════════════════════════════════════════════════════
+
+FIRST LOGIN:
+══════════════════════════════════════════════════════════════
+
+Username: admin
+Password: admin
+
+⚠️ Change password after first login!
+
+═══════════════════════════════════════════════════════════════
+
+NEED MORE HELP?
+══════════════════════════════════════════════════════════════
+
+See detailed guide: WINDOWS_SETUP.md
+
+Or run: diagnose.bat
+(Shows exactly what's wrong and how to fix it)
+
+═══════════════════════════════════════════════════════════════
+
+WHAT THE FIX DOES:
+══════════════════════════════════════════════════════════════
+
+The updated code now automatically:
+✓ Creates the 'data' folder if missing
+✓ Creates the 'logs' folder if missing
+✓ Shows helpful error messages
+✓ Works with French Windows (encoding fix)
+✓ Handles paths with spaces correctly
+
+So just download the latest code and run: start.bat
+
+═══════════════════════════════════════════════════════════════
+
+Repository: https://github.com/mamounbq1/Cah
+Latest commit: b8c3c5d
+
+All fixes are now available on GitHub!
+
+═══════════════════════════════════════════════════════════════
