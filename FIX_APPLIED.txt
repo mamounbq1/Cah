@@ -1,0 +1,88 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                    FIX APPLIED - URGENT                       ║
+║              Import Error Fixed in tap_manager.py             ║
+╚═══════════════════════════════════════════════════════════════╝
+
+YOUR ERROR:
+══════════════════════════════════════════════════════════════
+ModuleNotFoundError: No module named 'frames'
+  File "ui\tap_manager.py", line 4, in <module>
+    from frames.vacances import create_vacances_tab
+
+══════════════════════════════════════════════════════════════
+
+✅ FIX APPLIED AND PUSHED TO GITHUB
+══════════════════════════════════════════════════════════════
+
+Changed: ui/tap_manager.py
+
+OLD (broken):
+  from frames.vacances import create_vacances_tab
+  from frames.holiday import create_holidays_tab
+  from frames.absences import create_absences_tab
+  from frames.modules import create_modules_tab
+  from frames.classes import create_classes_tab
+
+NEW (fixed):
+  from services.vacances import create_vacances_tab
+  from services.holiday import create_holidays_tab
+  from services.absences import create_absences_tab
+  from services.modules import create_modules_tab
+  from services.classes import create_classes_tab
+
+══════════════════════════════════════════════════════════════
+
+HOW TO GET THE FIX:
+══════════════════════════════════════════════════════════════
+
+OPTION 1: Download Fresh (Recommended)
+────────────────────────────────────────────────────────────
+1. Go to: https://github.com/mamounbq1/Cah
+2. Click green "Code" button
+3. Click "Download ZIP"
+4. Extract to your Desktop
+5. Run: start.bat
+
+OPTION 2: Manual Fix (If you can't download)
+────────────────────────────────────────────────────────────
+1. Open: ui\tap_manager.py in Notepad
+2. Find lines 4-8 (the import statements)
+3. Replace all "from frames." with "from services."
+4. Save the file
+5. Run: python main.py
+
+OPTION 3: Use Git (If you have git installed)
+────────────────────────────────────────────────────────────
+cd "C:\Users\DELL\Desktop\MAE 2026\Cah-main"
+git pull origin main
+python main.py
+
+══════════════════════════════════════════════════════════════
+
+VERIFICATION:
+══════════════════════════════════════════════════════════════
+
+After applying the fix, you should see:
+
+C:\Users\DELL\Desktop\MAE 2026\Cah-main>python main.py
+[Config] BASE_DIR: C:\Users\DELL\Desktop\MAE 2026\Cah-main
+[Config] DATA_DIR: C:\Users\DELL\Desktop\MAE 2026\Cah-main\data
+[Config] DB_PATH: C:\Users\DELL\Desktop\MAE 2026\Cah-main\data\cahier_texte.db
+
+Then the application window should open (no error!)
+
+══════════════════════════════════════════════════════════════
+
+LATEST COMMITS:
+══════════════════════════════════════════════════════════════
+✅ a53271a - Fix broken imports in tap_manager.py (LATEST)
+✅ 64fcc96 - Windows quick start guide
+✅ b8c3c5d - Windows compatibility fixes
+✅ 32b47bc - Complete project reorganization
+
+══════════════════════════════════════════════════════════════
+
+GitHub Repository: https://github.com/mamounbq1/Cah
+All fixes are live and ready to download!
+
+══════════════════════════════════════════════════════════════
