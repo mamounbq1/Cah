@@ -21,6 +21,7 @@ from core.config import DB_PATH
 from ui.home import LoginFrame, HomeFrame
 from ui.schadual import EmploiDuTempsApp
 from ui.tap_manager import TabManagerFrame
+from ui.modern_constraints import ModernConstraintsFrame  # New modern UI
 from ui.SavedSchedulesFrame import SavedSchedulesFrame
 from ui.cahier_texte import CahierTextFrame
 from services.import_excel import ExcelImporterFrame
@@ -131,6 +132,7 @@ class MainApp(tk.Tk):
                 'HomeFrame': HomeFrame,
                 'EmploiDuTempsApp': EmploiDuTempsApp,
                 'TabManagerFrame': TabManagerFrame,
+                'ModernConstraintsFrame': ModernConstraintsFrame,  # New modern UI
                 'SavedSchedulesFrame': SavedSchedulesFrame,
                 'CahierTextFrame': CahierTextFrame,
                 'ExcelImporterFrame': ExcelImporterFrame

@@ -124,7 +124,8 @@ class HomeFrame(ttk.Frame):
             ("➕ Ajouter une entrée", self.open_add_entry),
             ("🖨️ Imprimer l'état", self.print_state),
             ("📥 Importer contenu", self.import_content),
-            ("⚙️ Ajouter des contraintes", self.add_constraints),
+            ("⚙️ Contraintes (Ancien)", self.add_constraints),
+            ("✨ Contraintes (Moderne)", self.add_constraints_modern),
             ("📅 Emploi du temps", self.open_schedule),
             ("📚 Distribuer les cours", self.distribute_courses)
         ]
@@ -151,6 +152,9 @@ class HomeFrame(ttk.Frame):
 
     def add_constraints(self):
         self.controller.show_frame("TabManagerFrame")
+    
+    def add_constraints_modern(self):
+        self.controller.show_frame("ModernConstraintsFrame")
 
     def distribute_courses(self):
         self.controller.show_frame("CahierTextFrame")
