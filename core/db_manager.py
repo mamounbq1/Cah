@@ -228,11 +228,11 @@ class DatabaseManager:
             return False
 
     def get_saved_weeks(self):
-        """Retrieve unique saved weeks from the schedule entries."""
+        """Retrieve unique saved weeks from the schedule data."""
         try:
             self.cursor.execute("""
                 SELECT DISTINCT week_number, strftime('%Y', created_at) as year 
-                FROM schedule_entries 
+                FROM schedule_data 
                 ORDER BY year DESC, week_number DESC
             """)
             weeks = self.cursor.fetchall()
@@ -240,7 +240,7 @@ class DatabaseManager:
 
             # If no rows were returned, return a default tuple.
             if not weeks:
-                logging.warning("No saved weeks found in schedule_entries table.")
+                logging.warning("No saved weeks found in schedule_data table.")
                 return [(0, "Aucune semaine sauvegardée")]
 
             # Validate each row to ensure it contains at least 2 elements.
