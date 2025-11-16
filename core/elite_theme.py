@@ -110,6 +110,8 @@ class EliteTheme:
         # Body text
         'body_large': ('SF Pro Text', 16),              # Large body
         'body': ('SF Pro Text', 14),                    # Regular body
+        'body_medium': ('SF Pro Text', 14, 'medium'),   # Medium weight body
+        'body_bold': ('SF Pro Text', 14, 'bold'),       # Bold body
         'body_small': ('SF Pro Text', 12),              # Small body
         
         # Special
