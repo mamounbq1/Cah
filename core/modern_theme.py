@@ -49,7 +49,7 @@ class ModernTheme:
         
         # Card colors
         'card_bg': '#FFFFFF',       # Card background
-        'card_shadow': '#00000010', # Card shadow
+        'card_shadow': '#E0E0E0',   # Card shadow (light gray, was RGBA)
         
         # Status colors
         'status_active': '#10B981',  # Active green

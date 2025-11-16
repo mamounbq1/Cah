@@ -33,8 +33,8 @@ class EliteTheme:
         # Glassmorphism backgrounds
         'glass_bg': '#FFFFFF',          # Base glass
         'glass_bg_dark': '#1E1E1E',     # Dark glass
-        'glass_overlay': '#F8F9FA99',   # Semi-transparent white
-        'glass_border': '#FFFFFF40',    # Subtle border
+        'glass_overlay': '#F8F9FA',     # Light overlay (was semi-transparent)
+        'glass_border': '#E8E8E8',      # Subtle border (was semi-transparent)
         
         # Surface elevations (Material Design inspired)
         'surface_0': '#FFFFFF',         # Ground level
@@ -75,11 +75,11 @@ class EliteTheme:
         'border_dark': '#94A3B8',       # Dark border
         'border_focus': '#3B82F6',      # Focus border
         
-        # Shadows (for depth)
-        'shadow_sm': '#0000000D',       # Small shadow
-        'shadow_md': '#00000026',       # Medium shadow
-        'shadow_lg': '#00000040',       # Large shadow
-        'shadow_xl': '#00000059',       # Extra large shadow
+        # Shadows (for depth) - Note: tkinter doesn't support RGBA, these are for reference only
+        'shadow_sm': '#E8E8E8',         # Small shadow (light gray)
+        'shadow_md': '#D0D0D0',         # Medium shadow (medium gray)
+        'shadow_lg': '#B8B8B8',         # Large shadow (darker gray)
+        'shadow_xl': '#A0A0A0',         # Extra large shadow (darkest gray)
         
         # Status indicators
         'status_online': '#10B981',     # Green
