@@ -191,7 +191,7 @@ class EliteTheme:
             background=cls.COLORS['primary'],
             foreground=cls.COLORS['text_inverse'],
             borderwidth=0,
-            focuscolor='none',
+            focuscolor='',
             padding=(cls.SPACING['lg'], cls.SPACING['md']),
             relief='flat'
         )
@@ -210,7 +210,7 @@ class EliteTheme:
             background=cls.COLORS['glass_overlay'],
             foreground=cls.COLORS['text_primary'],
             borderwidth=1,
-            focuscolor='none',
+            focuscolor='',
             padding=(cls.SPACING['lg'], cls.SPACING['md']),
             relief='flat'
         )
@@ -223,7 +223,7 @@ class EliteTheme:
             font=cls.FONTS['button'],
             foreground=cls.COLORS['text_inverse'],
             borderwidth=0,
-            focuscolor='none',
+            focuscolor='',
             padding=(cls.SPACING['lg'], cls.SPACING['md']),
             relief='flat'
         )
