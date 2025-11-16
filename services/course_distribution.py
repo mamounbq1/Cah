@@ -20,17 +20,34 @@ class CourseDistributionManager:
 
     def _setup_tables(self):
         """Set up necessary database tables if they don't exist"""
+        # First, check if year column exists in class_course_progress
+        self.cursor.execute("PRAGMA table_info(class_course_progress)")
+        columns = [col[1] for col in self.cursor.fetchall()]
+        
+        if 'class_course_progress' not in [table[0] for table in self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()]:
+            # Create table with year column
+            self.cursor.executescript("""
+                CREATE TABLE IF NOT EXISTS class_course_progress (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    class_id INTEGER NOT NULL,
+                    last_course_id INTEGER,
+                    last_week INTEGER,
+                    year INTEGER NOT NULL,
+                    FOREIGN KEY (last_course_id) REFERENCES ma_table(id),
+                    FOREIGN KEY (class_id) REFERENCES classes(id),
+                    UNIQUE(class_id, last_week, year)
+                );
+            """)
+        elif 'year' not in columns:
+            # Add year column to existing table
+            try:
+                self.cursor.execute("ALTER TABLE class_course_progress ADD COLUMN year INTEGER")
+                print("Added 'year' column to class_course_progress table")
+            except sqlite3.OperationalError as e:
+                print(f"Note: Could not add year column (may already exist): {e}")
+        
+        # Create schedule_data table
         self.cursor.executescript("""
-            CREATE TABLE IF NOT EXISTS class_course_progress (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                class_id INTEGER NOT NULL,
-                last_course_id INTEGER,
-                last_week INTEGER,
-                FOREIGN KEY (last_course_id) REFERENCES ma_table(id),
-                FOREIGN KEY (class_id) REFERENCES classes(id),
-                UNIQUE(class_id, last_week)
-            );
-
             CREATE TABLE IF NOT EXISTS schedule_data (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 week_number INTEGER NOT NULL,
