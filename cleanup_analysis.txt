@@ -1,0 +1,62 @@
+FILE CLEANUP ANALYSIS
+=====================
+
+DUPLICATE FILES (in root, already copied to packages):
+======================================================
+
+From CORE package (4 duplicates):
+- config.py          → core/config.py ✓
+- constants.py       → core/constants.py ✓
+- db_manager.py      → core/db_manager.py ✓
+- theme_manager.py   → core/theme_manager.py ✓
+
+From UI package (8 duplicates):
+- SavedSchedulesFrame.py → ui/SavedSchedulesFrame.py ✓
+- cahier_texte.py    → ui/cahier_texte.py ✓
+- home.py            → ui/home.py ✓
+- loading_window.py  → ui/loading_window.py ✓
+- schadual.py        → ui/schadual.py ✓
+- schedule_grid.py   → ui/schedule_grid.py ✓
+- tap_manager.py     → ui/tap_manager.py ✓
+- top_frame.py       → ui/top_frame.py ✓
+
+From SERVICES package (8 duplicates):
+- absences.py        → services/absences.py ✓
+- add_entry.py       → services/add_entry.py ✓
+- classes.py         → services/classes.py ✓
+- course_distribution.py → services/course_distribution.py ✓
+- holiday.py         → services/holiday.py ✓
+- import_excel.py    → services/import_excel.py ✓
+- modules.py         → services/modules.py ✓
+- pdf_generator.py   → services/pdf_generator.py ✓
+- vacances.py        → services/vacances.py ✓
+
+TEST FILES (to remove):
+=======================
+- test.py            → Copied to services/test.py ✓
+- test1.py           → Old test file (782 lines) ✗
+- test3.py           → Old test file (347 lines) ✗
+- cahier_texte2.py   → Duplicate/old version ✗
+
+UTILITY FILES (keep):
+=====================
+- main.py            → Keep (entry point) ✓
+- fix_imports.py     → Keep (utility tool) ✓
+
+OTHER FILES TO CHECK:
+=====================
+- cahier_texte.log   → Old log file (can remove)
+
+SUMMARY:
+========
+Total duplicates to remove: 20 files
+Test files to remove: 3 files
+Old log files to remove: 1 file
+TOTAL FILES TO REMOVE: 24 files
+
+Files to KEEP in root:
+- main.py (entry point)
+- run.sh (startup script)
+- fix_imports.py (utility)
+- requirements.txt (dependencies)
+- *.md (documentation files)

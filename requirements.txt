@@ -1,0 +1,32 @@
+# School Schedule Management System - Dependencies
+# Generated: 2025-11-15
+
+# Core Framework
+# tkinter - Usually included with Python, no pip installation needed
+
+# PDF Generation
+reportlab>=3.6.0
+
+# Data Processing
+pandas>=1.5.0
+openpyxl>=3.0.0
+
+# Calendar Widget
+tkcalendar>=1.6.0
+
+# Image Processing (for PDF generation)
+Pillow>=9.0.0
+
+# Optional but recommended
+python-dateutil>=2.8.0
+
+# Development Dependencies (optional)
+# pytest>=7.0.0
+# pytest-cov>=4.0.0
+# black>=22.0.0
+# flake8>=5.0.0
+# mypy>=0.990
+
+# Security (recommended for production)
+# bcrypt>=4.0.0
+# argon2-cffi>=21.3.0
